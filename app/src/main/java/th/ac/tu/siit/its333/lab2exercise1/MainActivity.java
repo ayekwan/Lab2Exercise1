@@ -14,6 +14,7 @@ public class MainActivity extends ActionBarActivity {
 
     // expr = the current string to be calculated
     StringBuffer expr;
+    int ans;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +37,40 @@ public class MainActivity extends ActionBarActivity {
         //reference: http://stackoverflow.com/questions/2206378/how-to-split-a-string-but-also-keep-the-delimiters
         String e = expr.toString();
         String[] tokens = e.split("((?<=\\+)|(?=\\+))|((?<=\\-)|(?=\\-))|((?<=\\*)|(?=\\*))|((?<=/)|(?=/))");
+
+        ans = Integer.parseInt(tokens[0]);
+
+        for (int i = 1 ; i < tokens.length ; i+=2)
+        {
+            if(tokens[i].equals("+"))
+            {
+                ans += Integer.parseInt(tokens[i+1]);
+            }
+            if(tokens[i].equals("-"))
+            {
+                ans -= Integer.parseInt(tokens[i+1]);
+            }
+            if(tokens[i].equals("*"))
+            {
+                ans *= Integer.parseInt(tokens[i+1]);
+            }
+            if(tokens[i].equals("/"))
+            {
+                ans /= Integer.parseInt(tokens[i+1]);
+            }
+
+        }
+        TextView tvAns = (TextView)findViewById(R.id.tvAns);
+        tvAns.setText(Integer.toString(ans));
+
+    }
+    public void equalClicked(View v){
+        expr = new StringBuffer();
+        expr.append(Integer.toString(ans));
+
+        updateExprDisplay();
+        TextView tvAns = (TextView)findViewById(R.id.tvAns);
+        tvAns.setText(" ");
     }
 
     public void digitClicked(View v) {
@@ -50,8 +85,16 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void operatorClicked(View v) {
+        String op = ((TextView)v).getText().toString();
         //IF the last character in expr is not an operator and expr is not "",
-        //THEN append the clicked operator and updateExprDisplay,
+        if(expr.length() > 0) {
+            if (!(expr.charAt(expr.length() - 1) == '+' || expr.charAt(expr.length() - 1) == '-' || expr.charAt(expr.length() - 1) == '*'
+                    || expr.charAt(expr.length() - 1) == '/')) {
+                //THEN append the clicked operator and updateExprDisplay,
+                expr.append(op);
+                updateExprDisplay();
+            }
+        }
         //ELSE do nothing
     }
 
@@ -70,6 +113,42 @@ public class MainActivity extends ActionBarActivity {
         if (expr.length() > 0) {
             expr.deleteCharAt(expr.length()-1);
             updateExprDisplay();
+        }
+        if(expr.length() > 0) {
+            recalculate();
+        }
+    }
+
+    double memory;
+    public void mButtonClicked(View v){
+        int id = v.getId();
+
+        switch (id){
+            case R.id.madd:
+                memory = memory + ans;
+                Toast t = Toast.makeText(this.getApplicationContext(),
+                        "Mem add", Toast.LENGTH_SHORT);
+                t.show();
+                break;
+            case R.id.msub:
+                memory = memory - ans;
+                Toast p = Toast.makeText(this.getApplicationContext(),
+                        "Mem subtract", Toast.LENGTH_SHORT);
+                p.show();
+                break;
+            case R.id.mr:
+                TextView tvExpr = (TextView)findViewById(R.id.tvExpr);
+                tvExpr.setText(Double.toString(memory));
+                Toast q = Toast.makeText(this.getApplicationContext(),
+                        "MR", Toast.LENGTH_SHORT);
+                q.show();
+                break;
+            case R.id.mc:
+                memory = 0;
+                Toast r = Toast.makeText(this.getApplicationContext(),
+                        "MC", Toast.LENGTH_SHORT);
+                r.show();
+                break;
         }
     }
 
